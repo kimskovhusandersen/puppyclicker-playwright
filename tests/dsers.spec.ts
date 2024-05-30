@@ -1,4 +1,4 @@
-import { test, expect, Page } from "@playwright/test";
+import { test } from "@playwright/test";
 
 test.beforeAll(async () => {
   test.setTimeout(60000);
@@ -43,28 +43,6 @@ export function getStoreCredentials(): { email: string; password: string } {
   }
 
   return credentials;
-}
-
-async function applyNoPushedToStoreErrorTag(page: Page) {
-  await page.waitForTimeout(500);
-  await page.locator(".ant-checkbox-input").first().check();
-  await page.waitForTimeout(500);
-  await page.getByRole("button", { name: "Tag Management" }).click();
-  await page.waitForTimeout(500);
-  await page.getByRole("button", { name: "Apply DSers Tags" }).click();
-  await page.waitForTimeout(500);
-  await page
-    .getByLabel("Apply DSers Tags")
-    .getByLabel("", { exact: true })
-    .check();
-  await page.waitForTimeout(500);
-  await page
-    .getByLabel("Apply DSers Tags")
-    .getByRole("button", { name: "OK" })
-    .click();
-  await page.waitForTimeout(2000);
-  await page.locator(".ant-checkbox-input").first().uncheck();
-  await page.waitForTimeout(2000);
 }
 
 test("Dsers Workflow", async ({ page }) => {

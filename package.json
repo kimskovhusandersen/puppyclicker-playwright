@@ -4,7 +4,8 @@
   "main": "index.js",
   "private": true,
   "scripts": {
-    "start": "npx playwright test --debug"
+    "start:dsers": "npx playwright test dsers.spec.ts --debug",
+    "start:shopify": "npx playwright test shopify.spec.ts --ui"
   },
   "keywords": [],
   "author": "",
