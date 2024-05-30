@@ -165,7 +165,7 @@ test("Dsers Workflow", async ({ page }) => {
         await page
           .getByLabel("Apply DSers Tags")
           .getByLabel("", { exact: true })
-          .uncheck();
+          .check();
         await page
           .getByLabel("Apply DSers Tags")
           .getByRole("button", { name: "OK" })
