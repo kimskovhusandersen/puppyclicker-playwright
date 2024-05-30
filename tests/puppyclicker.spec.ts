@@ -157,20 +157,6 @@ test("Dsers Workflow", async ({ page }) => {
       } else if (index === 0) {
         console.log("Failed to push product.");
         await page.waitForTimeout(2000);
-        await page
-          .locator(".sc_below_toolbarRibbon > span:nth-child(3) > svg")
-          .nth(i)
-          .click();
-        await page.locator("div:nth-child(3) > div > .ant-btn").first().click();
-        await page
-          .getByLabel("Apply DSers Tags")
-          .getByLabel("", { exact: true })
-          .check();
-        await page
-          .getByLabel("Apply DSers Tags")
-          .getByRole("button", { name: "OK" })
-          .click();
-        await page.waitForTimeout(2000);
       }
       await page.getByRole("alert").getByRole("button").click();
       await page.waitForTimeout(500);
