@@ -67,7 +67,7 @@ async function applyNoPushedToStoreErrorTag(page: Page) {
   await page.waitForTimeout(2000);
 }
 
-test("test", async ({ page }) => {
+test("Dsers Workflow", async ({ page }) => {
   const { email, password } = getStoreCredentials();
   // Go to the DSers login page and login
   await page.goto("https://accounts.dsers.com/accounts/login");
@@ -79,6 +79,7 @@ test("test", async ({ page }) => {
 
   // Wait for the page to navigate to the next page
   await page.waitForURL("https://www.dsers.com/application/find_suppliers");
+  await page.waitForSelector("text=All Categories");
 
   await page.waitForTimeout(3000);
 
@@ -98,78 +99,91 @@ test("test", async ({ page }) => {
   await page.getByRole("menuitem", { name: "Import list" }).click();
   await page.waitForURL("https://www.dsers.com/application/import_list");
 
-  // Apply tags to products
-  await applyNoPushedToStoreErrorTag(page);
-
-  // Apply filters
+  // Set initial filters
+  await page.waitForTimeout(2000);
   await page.getByRole("button", { name: "Filter" }).click();
-  await page.waitForTimeout(500);
-  await page.getByLabel("No pushed to store error").check();
   await page.waitForTimeout(500);
   await page.getByLabel("No pushed to Store(s)").check();
   await page.waitForTimeout(500);
   await page.getByRole("button", { name: "Confirm" }).click();
-  await page.waitForTimeout(2000);
+  await page.waitForTimeout(3000);
 
   // Select first product
-  const checkboxLocator = page.locator(
+  const checkboxes = page.locator(
     ".sc_above > .ant-checkbox-wrapper > .ant-checkbox > .ant-checkbox-input"
   );
-  while ((await checkboxLocator.count()) > 0) {
-    await applyNoPushedToStoreErrorTag(page);
-    await page.getByRole("button", { name: "Filter" }).click();
-    await page.waitForTimeout(500);
-    await page.getByRole("button", { name: "Confirm" }).click();
-    await page.waitForTimeout(2000);
 
-    await checkboxLocator.first().click();
+  const count = await checkboxes.count();
 
-    await page.waitForTimeout(500);
+  let hasMorePages = true;
+  while (hasMorePages) {
+    for (let i = 0; i < count; i++) {
+      const checkbox = checkboxes.nth(i);
 
-    await page.getByRole("button", { name: "Bulk Edit Product" }).click();
-    await page.waitForTimeout(500);
-    await page.getByRole("tab", { name: "Images" }).click();
-    await page.waitForTimeout(500);
+      await checkbox.click();
 
-    await page
-      .locator(
-        ".index_imgRibbonContainer__n8Axn > .index_RibbonContainer__3wa8U > .index_leftRibbon__T3Tgy > .ant-checkbox-wrapper > .ant-checkbox > .ant-checkbox-input"
-      )
-      .check();
-    await page.waitForTimeout(500);
-    await page.getByRole("button", { name: "Save and Push" }).click();
-    await page.waitForTimeout(500);
-    await page.getByRole("button", { name: "PUSH TO STORES" }).click();
-    await page.waitForTimeout(500);
+      await page.waitForTimeout(500);
 
-    await page.waitForTimeout(3000);
+      await page.getByRole("button", { name: "Bulk Edit Product" }).click();
+      await page.waitForTimeout(500);
+      await page.getByRole("tab", { name: "Images" }).click();
+      await page.waitForTimeout(500);
 
-    await page.getByRole("button", { name: "Close" }).click();
-    await page.waitForTimeout(500);
-
-    const [index] = await waitForOneOf([
-      page.locator("text=Fail to be pushed 1 product(s)"),
-      page.locator("text=Successfully pushed 1 product"),
-    ]);
-
-    if (index === 1) {
-      console.log("Product was successfully pushed.");
-    } else if (index === 0) {
-      console.log("Failed to push product.");
       await page
-        .locator(".sc_below_toolbarRibbon > span:nth-child(3) > svg")
-        .first()
-        .click();
-      await page.locator("div:nth-child(3) > div > .ant-btn").first().click();
-      await page
-        .getByLabel("Apply DSers Tags")
-        .getByLabel("", { exact: true })
-        .uncheck();
-      await page
-        .getByLabel("Apply DSers Tags")
-        .getByRole("button", { name: "OK" })
-        .click();
-      await page.waitForTimeout(2000);
+        .locator(
+          ".index_imgRibbonContainer__n8Axn > .index_RibbonContainer__3wa8U > .index_leftRibbon__T3Tgy > .ant-checkbox-wrapper > .ant-checkbox > .ant-checkbox-input"
+        )
+        .check();
+      await page.waitForTimeout(500);
+      await page.getByRole("button", { name: "Save and Push" }).click();
+      await page.waitForTimeout(500);
+      await page.getByRole("button", { name: "PUSH TO STORES" }).click();
+      await page.waitForTimeout(500);
+
+      await page.waitForTimeout(3000);
+
+      await page.getByRole("button", { name: "Close" }).click();
+
+      await page.waitForTimeout(500);
+
+      const [index] = await waitForOneOf([
+        page.locator("text=Fail to be pushed 1 product(s)"),
+        page.locator("text=Successfully pushed 1 product"),
+      ]);
+
+      if (index === 1) {
+        console.log("Product was successfully pushed.");
+        await page.waitForTimeout(2000);
+      } else if (index === 0) {
+        console.log("Failed to push product.");
+        await page.waitForTimeout(2000);
+        await page
+          .locator(".sc_below_toolbarRibbon > span:nth-child(3) > svg")
+          .first()
+          .click();
+        await page.locator("div:nth-child(3) > div > .ant-btn").first().click();
+        await page
+          .getByLabel("Apply DSers Tags")
+          .getByLabel("", { exact: true })
+          .uncheck();
+        await page
+          .getByLabel("Apply DSers Tags")
+          .getByRole("button", { name: "OK" })
+          .click();
+        await page.waitForTimeout(2000);
+      }
+      await page.getByRole("alert").getByRole("button").click();
+      await page.waitForTimeout(500);
+    }
+
+    const nextPageBtn = page.locator(
+      ".index_btns__hTZVr > button:nth-child(2)"
+    );
+    if (await nextPageBtn.isDisabled()) {
+      hasMorePages = false;
+    } else {
+      nextPageBtn.click();
+      await page.waitForTimeout(3000);
     }
   }
 });
