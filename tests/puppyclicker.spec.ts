@@ -159,7 +159,7 @@ test("Dsers Workflow", async ({ page }) => {
         await page.waitForTimeout(2000);
         await page
           .locator(".sc_below_toolbarRibbon > span:nth-child(3) > svg")
-          .first()
+          .nth(i)
           .click();
         await page.locator("div:nth-child(3) > div > .ant-btn").first().click();
         await page
